@@ -1,0 +1,210 @@
+rem El siguiente proyecto presenta una simulacion de batalla entre dos bandos realizada en Yabasic
+
+rem Autores: 	Roberto Pablo Cuevas Pinto
+rem						Luciana Avelina Nuniez Linares
+rem Fecha: 21/10/19
+
+open window 900, 600
+window origin "lc"
+
+rem De las lineas 14 a 17 se definen el valor de las variables por el usuario.
+rem En la linea 24 se definen las dimensiones y tamanios de los diferentes arreglos
+rem De las lineas 36 a 48 se colocan a los diferentes soldados dentro del campo
+
+
+rem /////////////////////////////////////////////////////////
+n=10		rem Numero de soldados del equipo Naranja.
+m=15		rem Numero de soldados sel equipo Azul.
+ac1 = 60		rem Angulo de apertura para el equipo Naranja.
+ac2 = 80		rem Angulo de apertura para el equipo Azul.
+rem /////////////////////////////////////////////////////////
+
+r=10
+backcolor 0,0,0
+clear window
+
+dim x1(n),y1(n),xo1(n),yo1(n),x2(m),y2(m),mo1(n),mo2(m),xo2(m),yo2(m),e1(n),e2(m)
+
+rem Existe ganador
+hg = 0
+
+num2 = m + 1
+num1 = n + 1
+
+print n;
+print "\t";
+print m
+
+for i= 1 to n
+	xo1(i) = 0
+	yo1(i) = 0
+	mo1(i)= 0
+	e1(i) = 1
+next i
+
+for i= 1 to m
+	xo2(i) = 900
+	yo2(i) = 0
+	mo2(i) = 0
+	e2(i) = 1
+next i
+
+an1 = ac1 * (pi/180)
+an2 = ac2 * (pi/180)
+al = 2 * pi * ran()
+
+while hg = 0
+
+	rem INICIO MOVIMIENTO PARTICULAS EQUIPO NARANJA
+
+	for i = 1 to n
+
+		if(e1(i)=1) then
+
+			if(mo1(i)=0) then
+				repeat
+					al =2 * pi * ran()
+					x1(i) = xo1(i) + r * cos(al)
+					y1(i) = yo1(i) + r * sin(al)
+
+				until(sin(al)<sin(an1/2) and sin(al)>(-1 * sin(an1/2)) and x1(i)>xo1(i) and y1(i)<600 and y1(i)>0)
+
+				if(x1(i)>600) then
+			 		mo1(i)=1
+				endif
+
+
+			else
+				repeat
+					al =2 * pi * ran()
+					x1(i) = xo1(i) - r * cos(al)
+					y1(i) = yo1(i) + r * sin(al)
+
+				until(sin(al)<sin(an1/2) and sin(al)>(-1 * sin(an1/2)) and x1(i)<xo1(i) and y1(i)<600 and y1(i)>0)
+				if(x1(i)<300) then
+					 mo1(i)=0
+				endif
+			endif
+			color 255,85,0
+			fill circle x1(i),y1(i),5
+			wait 0.000000000001
+			clear fill circle xo1(i),yo1(i),5
+			xo1(i) = x1(i)
+			yo1(i) = y1(i)
+		endif
+
+	next i
+
+	rem FIN MOVIMIENTO PARTICULAS EQUIPO NARANJA
+
+	rem INICIO MOVIMIENTO PARTICULAS EQUIPO AZUL
+
+	for i = 1 to m
+
+		if(e2(i)=1) then
+
+			if(mo2(i)=0)then
+				repeat
+					al = 2 * pi * ran()
+					x2(i) = xo2(i) - r * cos(al)
+					y2(i) = yo2(i) + r * sin(al)
+
+				until(sin(al)<sin(an2/2) and sin(al)>(-1 * sin(an2/2)) and x2(i)<xo2(i) and y2(i)<600 and y2(i)>0)
+
+				if(x2(i)<300) then
+			 		mo2(i)=1
+				endif
+			else
+				repeat
+					al =2 * pi * ran()
+					x2(i) = xo2(i) + r * cos(al)
+					y2(i) = yo2(i) + r * sin(al)
+				until(sin(al)<sin(an2/2) and sin(al)>(-1 * sin(an2/2)) and x2(i)>xo2(i) and y2(i)<600 and y2(i)>0)
+
+				if(x2(i) > 600) then
+			 		mo2(i) = 0
+				endif
+			endif
+			color 0,43,255
+			fill circle x2(i),y2(i),5
+			wait 0.000000000001
+			clear fill circle xo2(i),yo2(i),5
+			xo2(i) = x2(i)
+			yo2(i) = y2(i)
+
+		endif
+
+	next i
+	rem FIN MOVIMIENTO PARTICULAS EQUIPO AZUL
+
+	rem INICIO PELEA
+
+	for q1 = 1 to n
+		if(e1(q1) = 1) then
+			for q2 = 1 to m
+				if(e2(q2) = 1) then
+					dist = sqrt(sqr(x1(q1) - x2(q2)) + sqr(y1(q1) - y2(q2)))
+					if(dist<=7)then
+						label again
+						dado1= 1 + (6 - 1) * ran()
+						dado2= 1 + (6 - 1) * ran()
+						if(dado1 < dado2) then
+							clear fill circle x1(q1),y1(q1),5
+							e1(q1) = 0
+						elsif(dado2 < dado1)
+							clear fill circle x2(q2),y2(q2),5
+							e2(q2) = 0
+						elsif(dado1 = dado2)
+							goto again
+						endif
+					endif
+				endif
+			next q2
+		endif
+	next q1
+	rem FIN PELEA
+
+	rem VERIFICAR NUMERO DE VIVOS POR EQUIPO
+
+	for i = 0 to n
+		if(e1(i)=0) then
+			num1 = num1 - 1
+		endif
+	next i
+
+	for i = 0 to n
+		if(e2(i)=0) then
+			num2 = num2 - 1
+		endif
+	next i
+
+	print num1;
+	print "\t";
+	print num2
+
+	if(num1 = 0)then
+		print "EL EQUIPO AZUL GANA"
+		hg=1
+	elsif(num2 = 0)
+		print "EL EQUIPO NARANJA GANA"
+		hg=1
+	else
+		num1 = n + 1
+		num2 = m + 1
+	endif
+
+wend
+
+for i = 1 to n
+	if(e1(i) = 1) then
+		color 255,85,0
+		fill circle xo1(i),yo1(i),5
+	endif
+next i
+
+for i = 1 to m
+	if(e2(i)=1) then
+		color 0,43,255
+		fill circle xo2(i),yo2(i),5
+	endif
+next i
