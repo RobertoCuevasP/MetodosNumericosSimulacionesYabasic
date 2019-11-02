@@ -1,0 +1,254 @@
+rem El siguiente proyecto muestra una simulacion de un entorno natural entre depredadores y presas hecho en Yabasic
+rem Autores: Roberto Pablo Cuevas Pinto
+rem          Luciana Avelina Nuniez Linares
+rem Fecha: 21/10/19
+
+open window 900, 600
+window origin "cc"
+backcolor 77, 153, 77
+clear window
+
+rem De las lineas 36 a 54 se realiza definicion y asignacion de Variables
+rem En las lineas 57 y 65 se dimensionan los arreglos de conejos y lobos respectivamente
+rem De las lineas 86 a 105 se colocan a conejos y lobos en posiciones aleatorias dentro de la ventana
+rem De las lineas 112 a 129 se realiza el movimiento de los conejos si aun no es momento para reproducirse
+rem De las lineas 132 a 150 se hace la reproduccion de conejos
+rem De las lineas 154 a 203 se realiza e movimiento de los lobos
+rem De las lineas 155 a 182 se da el juego de caza entre lobos y conejos
+rem De las lineas 205 a 222 se realiza la reproduccion de lobos
+rem De las lineas 243 a 253 se muestra en consola el numero de lobos y conejos vivos
+rem ///////////////////////////////////////////////////
+
+nroConejos = 20 rem Numero de conejos
+nroLobos = 2 rem Numero de lobos
+pn = 10 rem Pasos en los que un lobo debe comer a un conejo
+
+rem ///////////////////////////////////////////////////
+
+print "Lobos";
+print "\t";
+print "Conejos"
+print nroLobos;
+print "\t";
+print nroConejos
+
+rem Definicion de variables
+
+visionLobo = 50
+vidaLobo = pn
+tiempoDeEspera = 0.1
+rem Radio de la particula que representa al lobo
+tamanioLobo = 7
+rem Radio de la particula que representa al conejo
+tamanioConejo = 5
+rem Distancia que puede recorrer un lobo en una iteracion
+distanciaLobo = 100
+rem Distancia que puede recorrer un conejo en una iteracion
+distanciaConejo = distanciaLobo/4
+rem Tiempo en el cual un lobo puede reproducirse
+pasosParaLaReproduccionLobo = 2 * pn
+rem Tiempo en el cual un conejo puede reproducirse
+pasosParaLaReproduccionConejo = 4 * pn
+rem Numero de lobos vivos
+lobosVivos = nroLobos
+rem Numero de conejos vivos
+conejosVivos = nroConejos
+
+rem dimension arreglo de los lobos
+dim arregloLobos(5, nroLobos)
+rem arregloLobos(1) = distancia en X
+rem arregloLobos(2) = distancia anterior en X
+rem arregloLobos(3) = distancia en Y
+rem arregloLobos(4) = distancia anterior en Y
+rem arregloLobos(5) = vidaLobos(De 20 a 0)
+
+rem dimension arreglo de los conejos
+dim arregloConejos(5, nroConejos)
+rem arregloConejos(1) = distancia en X
+rem arregloConejos(2) = distancia anterior en X
+rem arregloConejos(3) = distancia en Y
+rem arregloConejos(4) = distancia anterior en Y
+rem arregloConejos(5) = vidaConejos(True o False)
+
+
+rem Rango de posiciones aleatorias para conejos y lobos en coordenadas x,y
+ax = -400
+bx = 400
+ay = 250
+by = -250
+
+rem Limites de la pantalla
+limiteSuperior = 295
+limiteInferior = -295
+limiteDerecha = 445
+limiteIzquierda = -445
+
+rem Colocacion de los conejos en posiciones aleatorias
+for i = 1 to nroConejos
+  arregloConejos(1,i) = ax + (bx - ax) * ran()
+  arregloConejos(2,i) = arregloConejos(1,i)
+  arregloConejos(3,i) = ay + (by - ay) * ran()
+  arregloConejos(4,i) = arregloConejos(3,i)
+  arregloConejos(5,i) = true
+  color 238, 208, 157
+  fill circle arregloConejos(1,i),arregloConejos(3,i),tamanioConejo
+next i
+
+rem Colocacion de los lobos en posiciones aleatorias
+for i = 1 to nroLobos
+  arregloLobos(1,i) = ax + (bx - ax) * ran()
+  arregloLobos(2,i) = arregloLobos(1,i)
+  arregloLobos(3,i) = ay + (by - ay) * ran()
+  arregloLobos(4,i) = arregloLobos(3,i)
+  arregloLobos(5,i) = vidaLobo
+  color 57, 61, 66
+  fill circle arregloLobos(1,i),arregloLobos(3,i),tamanioLobo
+next i
+
+pasos = 1
+rem Condicion para que termine el programa (mueren lobos, mueren conejos u ocurren 1000 pasos)
+while (lobosVivos > 0 and conejosVivos > 0 and pasos < 1000)
+
+  rem Los conejos aun no se reproducen
+  if(pasosParaLaReproduccionConejo > 0) then
+    for i = 1 to nroConejos
+      wait tiempoDeEspera
+      if(arregloConejos(5,i)) then
+        clear fill circle arregloConejos(2,i),arregloConejos(4,i),tamanioConejo
+        repeat
+          ang = 2 * pi * ran()
+          arregloConejos(1,i) = arregloConejos(2,i) + distanciaConejo * cos(ang)
+          arregloConejos(3,i) = arregloConejos(4,i) + distanciaConejo * sin(ang)
+        until (arregloConejos(1,i) > limiteIzquierda and arregloConejos(1,i) < limiteDerecha and arregloConejos(3,i) > limiteInferior and arregloConejos(3,i) < limiteSuperior)
+
+        color 238, 208, 157
+        fill circle arregloConejos(1,i),arregloConejos(3,i),tamanioConejo
+        arregloConejos(2,i) = arregloConejos(1,i)
+        arregloConejos(4,i) = arregloConejos(3,i)
+      endif
+    next i
+    pasosParaLaReproduccionConejo = pasosParaLaReproduccionConejo - 1
+  else
+    rem Los conejos vivos se reproducen
+    conejosVivos = 0
+    rem Se busca que conejos estan vivos
+    for i = 1 to nroConejos
+      if(arregloConejos(5,i)) then
+        conejosVivos = conejosVivos + 1
+      endif
+    next i
+
+    crias = conejosVivos * 8
+    dim arregloConejos(5, nroConejos + crias)
+    for i = nroConejos + 1 to nroConejos + crias
+      arregloConejos(1,i) = ax + (bx - ax) * ran()
+      arregloConejos(2,i) = arregloConejos(1,i)
+      arregloConejos(3,i) = ay + (by - ay) * ran()
+      arregloConejos(4,i) = arregloConejos(3,i)
+      arregloConejos(5,i) = true
+    next i
+    nroConejos = nroConejos + crias
+    pasosParaLaReproduccionConejo = 4 * pn
+  endif
+
+  rem Los lobos aun no se reproducen
+  if(pasosParaLaReproduccionLobo > 0) then
+    for i = 1 to nroLobos
+      rem Verificar que conejos se encuentran en el rango del lobo
+      j = 1
+      encontroConejo = false
+      while (j <= nroConejos and !encontroConejo)
+
+        rem Se verifica la distancia conejo por conejo hasta comerse que pueda comerse a uno, o hasta que ya no existan conejos por revisar
+        if(sqrt((arregloLobos(1,i) - arregloConejos(1,j)) ^ 2 + (arregloLobos(3,i) - arregloConejos(3,j)) ^ 2) < visionLobo and arregloConejos(5,j) and arregloLobos(5,i) > 0) then
+          rem Juego de caza
+          a = 1
+          b = 10
+          probabilidad = a + (b - a) * ran()
+          if(probabilidad > 4) then
+            arregloConejos(5,j) = false rem Conejo muere
+            clear fill circle arregloConejos(1,j),arregloConejos(3,j),tamanioConejo
+            clear fill circle arregloLobos(1,i),arregloLobos(3,i),tamanioLobo
+            arregloLobos(1,i) = arregloConejos(1,j)
+            arregloLobos(3,i) = arregloConejos(3,j)
+            arregloLobos(5,i) = vidaLobo
+            color 57, 61, 66
+            fill circle arregloLobos(1,i),arregloLobos(3,i),tamanioLobo
+            arregloLobos(2,i) = arregloLobos(1,i)
+            arregloLobos(4,i) = arregloLobos(3,i)
+            encontroConejo = true
+          endif
+        endif
+      j = j + 1
+      wend
+
+      wait tiempoDeEspera
+      if !encontroConejo then
+        clear fill circle arregloLobos(2,i),arregloLobos(4,i),tamanioLobo
+        if(arregloLobos(5,i) > 0 ) then
+          repeat
+            ang = 2 * pi * ran()
+            arregloLobos(1,i) = arregloLobos(2,i) + distanciaLobo * cos(ang)
+            arregloLobos(3,i) = arregloLobos(4,i) + distanciaLobo * sin(ang)
+          until (arregloLobos(1,i) > limiteIzquierda and arregloLobos(1,i) < limiteDerecha and arregloLobos(3,i) > limiteInferior and arregloLobos(3,i) < limiteSuperior)
+
+          color 57, 61, 66
+          fill circle arregloLobos(1,i),arregloLobos(3,i),tamanioLobo
+          arregloLobos(2,i) = arregloLobos(1,i)
+          arregloLobos(4,i) = arregloLobos(3,i)
+          arregloLobos(5,i) = arregloLobos(5,i) - 1
+
+        endif
+      endif
+    next i
+    pasosParaLaReproduccionLobo = pasosParaLaReproduccionLobo - 1
+  else
+    lobosVivos = 0
+    for i = 1 to nroLobos
+      if(arregloLobos(5,i) > 0) then
+        lobosVivos = lobosVivos + 1
+      endif
+    next i
+    cachorros = lobosVivos * 2
+    dim arregloLobos(5, (nroLobos + cachorros))
+    for i = nroLobos + 1 to nroLobos + cachorros
+      arregloLobos(1,i) = ax + (bx - ax) * ran()
+      arregloLobos(2,i) = arregloLobos(1,i)
+      arregloLobos(3,i) = ay + (by - ay) * ran()
+      arregloLobos(4,i) = arregloLobos(3,i)
+      arregloLobos(5,i) = vidaLobo
+    next i
+    nroLobos = nroLobos + cachorros
+    pasosParaLaReproduccionLobo = 2 * pn
+  endif
+
+  pasos = pasos + 1
+  lobosVivos = 0
+  conejosVivos = 0
+  for i = 1 to nroLobos
+    if(arregloLobos(5,i) > 0) then
+      lobosVivos = lobosVivos + 1
+    endif
+  next i
+  for i = 1 to nroConejos
+      if(arregloConejos(5,i)) then
+      conejosVivos = conejosVivos + 1
+    endif
+  next i
+  print lobosVivos;
+  print "\t";
+  print conejosVivos
+
+wend
+
+if lobosVivos = 0 then
+  for i = 1 to nroLobos
+    clear fill circle arregloLobos(1,i), arregloLobos(3,i),tamanioLobo
+    clear fill circle arregloLobos(2,i), arregloLobos(4,i),tamanioLobo
+  next i
+elsif conejosVivos = 0 then
+  for i = 1 to nroConejos
+    clear fill circle arregloConejos(1,i), arregloConejos(3,i),tamanioConejo
+    clear fill circle arregloConejos(2,i), arregloConejos(4,i),tamanioConejo
+  next i
+endif
