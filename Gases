@@ -1,0 +1,104 @@
+rem El siguiente programa muestra una simulacion de dos gases puestos en matraces y como estos se mueven. El codigo fue
+rem realizado en Yabasic
+rem Autores:  Roberto Pablo Cuevas Pinto
+rem           Luciana Avelina Nuniez Linares
+rem Fecha: 21/10/19
+
+open window 600, 700
+window origin "lt"
+backcolor 0, 0, 0
+clear window
+
+rem En la linea 21 se definen las dimensiones de las matrices correspondientes a los gases 1 y 2
+rem De las lineas 25 a 33 se colocan las particulas del gas 1 dentro del primer matraz
+rem De las lineas 35 a 40 se colocan las particulas del gas 2 dentro del segundo matraz
+
+rem ///////////////////////////////////////////////////////////////////////////////////////
+n1 = 60		rem Numero de particulas del gas 1
+n2 = 60		rem Numero de particulas del gas 2
+g1 = 5		rem Camino libre medio del gas 1
+g2 = 3		rem Camino libre medio del gas 2
+rem ///////////////////////////////////////////////////////////////////////////////////////
+
+dim c1(4,n1), c2(4,n2)
+ec = true
+
+
+for i = 0 to n1
+	repeat
+		c1(1,i)= 100+ 400 * ran()
+		c1(2,i)= 100+ 400 * ran()
+		dist = sqrt(sqr(300-c1(1,i))+sqr(300-c1(2,i)))
+	until(dist < 198)
+	color 255,85,0
+	fill circle c1(1,i),c1(2,i),2
+next i
+
+for i = 0 to n2
+	c2(1,i)= 252 + (348-252) * ran()
+	c2(2,i)= 522 + (618-522) * ran()
+	color 0,43,255
+	fill circle c2(3,i),c2(4,i),2
+next i
+
+
+while (ec)
+
+pn1 = 0
+pn2 = 0
+
+color 255, 255, 255
+circle 300, 300, 200
+
+rectangle 295,500 to 305,520
+
+rectangle 250,520 to 350,620
+
+color 0, 0, 0
+fill rectangle 296,499 to 304,521
+
+rem INICIO MOVIMIENTO G1
+for i = 0 to n1
+	repeat
+		al = 2 * pi * ran()
+		c1(3,i) = c1(1,i) + g1 * cos(al)
+		c1(4,i) = c1(2,i) + g1 * sin(al)
+		dist = sqrt(sqr(300-c1(3,i))+sqr(300-c1(4,i)))
+	until(dist < 198 or (c1(3,i) < 303 and c1(3,i) > 297 and c1(4,i) > 498 and c1(4,i) < 522) or (c1(3,i) < 348 and c1(3,i) > 252 and c1(4,i)>522 and c1(4,i)<618))
+	color 255,85,0
+	clear fill circle c1(1,i),c1(2,i),2
+	fill circle c1(3,i),c1(4,i),2
+	c1(1,i) = c1(3,i)
+	c1(2,i) = c1(4,i)
+  if (c1(1,i) >= 250 and c1(1,i) <= 350  and c1(2,i) >= 520 and c1(2,i) <= 620) then
+    pn1 = pn1 + 1
+  endif
+next i
+rem FIN MOVIMIENTO G1
+
+rem INICIO MOVIMIENTO G2
+for i = 0 to n1
+	repeat
+		al = 2 * pi * ran()
+		c2(3,i) = c2(1,i) + g2 * cos(al)
+		c2(4,i) = c2(2,i) + g2 * sin(al)
+		dist = sqrt(sqr(300-c2(3,i))+sqr(300-c2(4,i)))
+	until(dist<198 or (c2(3,i)<303 and c2(3,i)>297 and c2(4,i)>498 and c2(4,i)<522) or (c2(3,i)<348 and c2(3,i)>252 and c2(4,i)>522 and c2(4,i)<618))
+	color 0,43,255
+	clear fill circle c2(1,i),c2(2,i),2
+	fill circle c2(3,i),c2(4,i),2
+	c2(1,i) = c2(3,i)
+	c2(2,i) = c2(4,i)
+
+  if(dist <= 200) then
+    pn2 = pn2 + 1
+  endif
+
+next i
+rem FIN MOVIMIENTO G2
+
+print pn1;
+print "\t";
+print pn2
+
+wend
